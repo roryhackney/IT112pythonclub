@@ -13,3 +13,11 @@ def getresources(request):
 def resourcedetail(request, id):
     resource=get_object_or_404(Resource, pk=id)
     return render(request, 'Club/resourcedetail.html', {'resource': resource})
+
+def getmeetings(request):
+    meeting_list = Meeting.objects.all()
+    return render(request, 'Club/meetings.html', {'meeting_list': meeting_list})
+
+def meetingdetail(request, id):
+    meeting = get_object_or_404(Meeting, pk=id)
+    return render(request, 'Club/meetingdetail.html', {'meeting': meeting})

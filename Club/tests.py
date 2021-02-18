@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from .models import Meeting, Minutes, Resource, Event
 import datetime
+from .forms import MeetingForm, ResourceForm
 
 # Create your tests here.
 class MeetingTest(TestCase):
@@ -48,3 +49,54 @@ class EventTest(TestCase):
 
     def test_tablename(self):
         self.assertEqual(str(Event._meta.db_table), 'event')
+
+class NewMeetingTest(TestCase):
+    #valid form data
+    def test_meetingform(self):
+        data = {
+            'meetingtitle':'Test Meeting',
+            'meetingdate':'2021/1/7',
+            'meetingtime':'14:00',
+            'meetinglocation':'Rm 104',
+            'meetingagenda':'Test Agenda'
+        }
+        form=MeetingForm(data)
+        self.assertTrue(form.is_valid)
+
+#not working
+    def test_meetingform_invalid(self):
+        data = {
+            'meetingtitle':'Test Meeting',
+            'meetingdate':'January 3 2021',
+            'meetingtime':'14:00',
+            'meetinglocation':'Rm 104',
+            'meetingagenda':'Test Agenda'
+        }
+        form=MeetingForm(data)
+        self.assertFalse(form.is_valid)
+
+class NewResourceTest(TestCase):
+    #valid form data
+    def test_resourceform(self):
+        data = {
+            'resourcename':'Test Resource',
+            'resourcetype':'Test Type',
+            'resourceurl':'http://www.google.com',
+            'datentered':'1/7/2021',
+            'userid':'roryhackney',
+            'description':'testresource'
+        }
+        form=ResourceForm(data)
+        self.assertTrue(form.is_valid)
+
+#not working
+    def test_resourceform_invalid(self):
+        data = {
+            'resourcetype':'Test Type',
+            'resourceurl':'http://www.google.com',
+            'datentered':'1/7/2021',
+            'userid':'roryhackney',
+            'description':'testresource'
+        }
+        form=ResourceForm(data)
+        self.assertFalse(form.is_valid)

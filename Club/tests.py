@@ -104,18 +104,32 @@ class NewResourceTest(TestCase):
 
 class NewResourceAuthenticationTest(TestCase):
     def setUp(self):
-        self.user = User.objects.create(username='testuser1', password='P@ssw0rd9')
+        self.user = User.objects.create_user(username='testuser1', password='P@ssw0rd9')
         self.instance = Resource.objects.create(resourcename='TestResource', resourcetype='TestType', resourceurl='https://www.google.com', dateentered=datetime.date(2021, 3, 5), userid=self.user, description='Test description')
 
     def test_redirect_if_not_logged_in(self):
         response = self.client.get(reverse('newresource'))
         self.assertRedirects(response, '/accounts/login/?next=/Club/newresource/')
 
+    def test_logged_in_uses_correct_template(self):
+        self.client.login(username='testuser1', password='P@ssw0rd9')
+        response=self.client.get(reverse('newresource'))
+        self.assertEqual(str(response.context['user']), 'testuser1')
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'Club/newresource.html')
+
 class NewMeetingAuthTest(TestCase):
     def setUp(self):
-        self.user = User.objects.create(username='testuser2', password='P@ssw0rd8')
+        self.user = User.objects.create_user(username='testuser2', password='P@ssw0rd8')
         self.newmeet = Meeting.objects.create(meetingtitle='Test Meeting', meetingdate=datetime.date(2021, 3, 4), meetingtime='13:00', meetinglocation='Rm 104', meetingagenda='Test Agenda')
     
     def test_redirect_not_logged_in(self):
         resp = self.client.get(reverse('newmeeting'))
         self.assertRedirects(resp, '/accounts/login/?next=/Club/newmeeting/')
+
+    def test_login_right_template(self):
+        self.client.login(username='testuser2', password='P@ssw0rd8')
+        response=self.client.get(reverse('newmeeting'))
+        self.assertEqual(str(response.context['user']), 'testuser2')
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'Club/newmeeting.html')

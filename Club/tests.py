@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from .models import Meeting, Minutes, Resource, Event
 import datetime
 from .forms import MeetingForm, ResourceForm
+from django.urls import reverse_lazy, reverse
 
 # Create your tests here.
 class MeetingTest(TestCase):
@@ -100,3 +101,21 @@ class NewResourceTest(TestCase):
         }
         form=ResourceForm(data)
         self.assertFalse(form.is_valid)
+
+class NewResourceAuthenticationTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create(username='testuser1', password='P@ssw0rd9')
+        self.instance = Resource.objects.create(resourcename='TestResource', resourcetype='TestType', resourceurl='https://www.google.com', dateentered=datetime.date(2021, 3, 5), userid=self.user, description='Test description')
+
+    def test_redirect_if_not_logged_in(self):
+        response = self.client.get(reverse('newresource'))
+        self.assertRedirects(response, '/accounts/login/?next=/Club/newresource/')
+
+class NewMeetingAuthTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create(username='testuser2', password='P@ssw0rd8')
+        self.newmeet = Meeting.objects.create(meetingtitle='Test Meeting', meetingdate=datetime.date(2021, 3, 4), meetingtime='13:00', meetinglocation='Rm 104', meetingagenda='Test Agenda')
+    
+    def test_redirect_not_logged_in(self):
+        resp = self.client.get(reverse('newmeeting'))
+        self.assertRedirects(resp, '/accounts/login/?next=/Club/newmeeting/')
